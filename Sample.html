@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Management System</title>
+</head>
+<body>
+  <h1>Loan Management System</h1>
+
+  <div id="userForm">
+    <label for="email">Email:</label>
+    <input type="email" id="email" />
+    <button onclick="registerUser()">Register</button>
+  </div>
+
+  <div id="dashboard">
+    <h2>User Dashboard</h2>
+    <p>Email: <span id="userEmail"></span></p>
+    <p>Role: <span id="userRole"></span></p>
+    <button onclick="requestLoan()">Request Loan</button>
+    <button onclick="viewPastLoans()">View Past Loans</button>
+  </div>
+
+  <div id="adminDashboard" style="display: none;">
+    <h2>Admin Dashboard</h2>
+    <button onclick="viewAllTransactions()">View All Transactions</button>
+  </div>
+
+  <script>
+    let users = [];
+    let transactions = [];
+
+    function registerUser() {
+      const email = document.getElementById('email').value;
+      const role = prompt('Choose a role (admin, borrower, lender):').toLowerCase();
+
+      if (role !== 'admin' && role !== 'borrower' && role !== 'lender') {
+        alert('Invalid role. Please choose from admin, borrower, or lender.');
+        return;
+      }
+
+      const user = { email, role, loans: [] };
+      users.push(user);
+
+      if (role === 'admin') {
+        document.getElementById('adminDashboard').style.display = 'block';
+      }
+
+      updateDashboard(user);
+    }
+
+    function updateDashboard(user) {
+      document.getElementById('userEmail').innerText = user.email;
+      document.getElementById('userRole').innerText = user.role;
+    }
+
+    function requestLoan() {
+      const currentUser = getCurrentUser();
+      if (currentUser.role !== 'borrower') {
+        alert('Only borrowers can request loans.');
+        return;
+      }
+
+      const amount = prompt('Enter loan amount:');
+      const loanRequest = { borrower: currentUser.email, amount, status: 'pending' };
+      transactions.push(loanRequest);
+      currentUser.loans.push(loanRequest);
+
+      alert('Loan requested successfully.');
+    }
+
+    function viewPastLoans() {
+      const currentUser = getCurrentUser();
+      const pastLoans = currentUser.loans.filter(loan => loan.status !== 'pending');
+      alert(`Past Loans:\n${JSON.stringify(pastLoans, null, 2)}`);
+    }
+
+    function viewAllTransactions() {
+      alert(`All Transactions:\n${JSON.stringify(transactions, null, 2)}`);
+    }
+
+    function getCurrentUser() {
+      const userEmail = document.getElementById('userEmail').innerText;
+      return users.find(user => user.email === userEmail);
+    }
+  </script>
+</body>
+</html>
